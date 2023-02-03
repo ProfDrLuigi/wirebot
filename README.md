@@ -164,6 +164,7 @@ or
 
 	b: How are you today?
 	
+and wait for the reply.
 
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
