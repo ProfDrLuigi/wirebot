@@ -150,12 +150,17 @@ If you got/send a msg you can cycle through the windows with:
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
 
-**openAI capabilty**
+#### openAI capabilty ####
 To use these Feature a free openAI Account is necessary. 
 https://auth0.openai.com/u/signup
 
 After creating an account create an API Token and put it in the upper section of wirebot.sh.
 https://platform.openai.com/account/api-keys
+
+To use it in chat simply start every chat line with "b: " or "B: " e.g.
+	b: How are you today?
+or
+	b: How are you today?
 
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
