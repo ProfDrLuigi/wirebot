@@ -150,6 +150,13 @@ If you got/send a msg you can cycle through the windows with:
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
 
+**openAI capabilty**
+To use these Feature a free openAI Account is necessary. 
+https://auth0.openai.com/u/signup
+
+After creating an account create an API Token and put it in the upper section of wirebot.sh.
+https://platform.openai.com/account/api-keys
+
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
 ### Troubleshootings
