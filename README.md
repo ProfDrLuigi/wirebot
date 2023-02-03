@@ -163,12 +163,12 @@ https://auth0.openai.com/u/signup
 After creating an account create an API Token and put it in the upper section of wirebot.sh.
 https://platform.openai.com/account/api-keys
 
-To use it in chat simply start every chat line with "b: " or "B: " e.g.
+To use it in chat simply start every chat line with # or . e.g.
 
-	b: How are you today?
+	#How are you today?
 or
 
-	b: How are you today?
+	.How are you today?
 	
 and wait for the reply. You can speak in every language with him.
 
