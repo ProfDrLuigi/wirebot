@@ -28,6 +28,12 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 **openSUSE**
 
 	sudo zypper install curl screen libtool libopenssl-devel sqlite3-devel libxml2-devel zlib-devel readline-devel libcurl-devel autoconf gcc make inotify-tools
+
+### If you want to use the openAI feature you need this too:
+
+	sudo apt install python
+	
+	pip install openai
 	
 ### Getting started
 
