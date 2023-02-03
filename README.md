@@ -170,7 +170,7 @@ or
 
 	b: How are you today?
 	
-and wait for the reply.
+and wait for the reply. You can speak in every language with him.
 
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
