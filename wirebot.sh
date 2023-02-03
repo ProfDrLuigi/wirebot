@@ -153,7 +153,7 @@ function rssfeed_init {
 
 ################ openAI Section ################
 
-if [[ "$command" = "b:"* ]] || [[ "$command" = "B:"* ]]; then
+if [[ "$command" = "#"* ]] || [[ "$command" = "."* ]]; then
   conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' )
   say=$( echo "$conversation" | openai complete -t "$openai_token" - )
   print_msg
