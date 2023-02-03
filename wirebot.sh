@@ -19,6 +19,12 @@ watchdir="/PATH/TO/FILES"
 ####################################################
 
 ####################################################
+################## openAI Token ####################
+####################################################
+openai_token="YOUR_TOKEN"
+####################################################
+
+####################################################
 ################# RSS Feed On/Off ##################
 ####################################################
 rssfeed=0
@@ -42,6 +48,13 @@ command=$( cat wirebot.cmd | sed 's/.*-###-//g' | xargs )
 function print_msg {
   screen -S wirebot -p0 -X stuff "$say"^M
 }
+
+if [[ "$command" = "b:"* ]] || [[ "$command" = "B:"* ]]; then
+  conversation=$( echo "$command" | sed 's/b:\ //g' )
+  say=$( echo "$conversation" | openai complete -t "$openai_token" - )
+  print_msg
+  exit
+fi
 
 function rnd_answer {
   size=${#answ[@]}
