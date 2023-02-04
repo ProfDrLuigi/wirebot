@@ -158,9 +158,11 @@ Original by Rafaël Warnault <dev@read-write.fr>
 
 ### openAI capability ###
 To use these Feature a free openAI Account is necessary. 
-https://auth0.openai.com/u/signup
+
+https://openai.com/api/login
 
 After creating an account create an API Token and put it in the upper section of wirebot.sh.
+
 https://platform.openai.com/account/api-keys
 
 To use it in chat simply start every chat line with # or . e.g.
