@@ -9,9 +9,8 @@ function read_rss {
   grep -E '(title>|description>)' | \
   tail -n +4 | \
   sed -e 's/^[ \t]*//' | \
-  sed -e 's/<title>//' -e 's/<\/title>//' -e 's/<description>/  /' -e 's/<\/description>//' | \
-  head -n 1 | sed -e 's/.*CDATA\[//g' -e 's/<br\/>//g' -e 's/<\/a>//g' -e 's/<em>//g' -e 's/<\/em>//g' -e 's/<a href="//g' -e 's/\">/\ /g' -e 's/&zwnj;//g' )
-  say=$( echo :newspaper: "$say" )
+  sed -e 's/<title>//' -e 's/<\/title>//' -e 's/<description>/  /' -e 's/<\/description>//' | head -n 1 | sed -e 's/.*CDATA\[//g' -e 's/<br\/>//g' | tr -dc '[[:print:]]\n' )
+  say=$( echo -e "<n><b><u>+++ Macrumors Breaking News +++</u></b><br>""$say""</n>" )
 }
 
 while true
