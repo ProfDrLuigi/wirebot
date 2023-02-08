@@ -39,9 +39,9 @@ admin_user="admin,luigi,peter"
 SELF=$(SELF=$(dirname "$0") && bash -c "cd \"$SELF\" && pwd")
 cd "$SELF"
 
-nick=$( cat wirebot.cmd | sed 's/-###.*//g' | xargs )
+nick=$( cat wirebot.cmd | sed 's/-###.*//g' | xargs -0 )
 nick_low=$( echo "$nick" | tr '[:upper:]' '[:lower:]' )
-command=$( cat wirebot.cmd | sed 's/.*-###-//g' | xargs )
+command=$( cat wirebot.cmd | sed 's/.*-###-//g' | xargs -0 )
 
 ################ Function Section ################
 
@@ -151,11 +151,32 @@ function rssfeed_init {
   fi
 }
 
-################ openAI Section ################
-
 if [[ "$command" = "#"* ]] || [[ "$command" = "."* ]]; then
   conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' )
   say=$( echo "$conversation" | openai complete -t "$openai_token" - )
+
+  if [[ "$say" == *"https"* ]]; then
+    pic_url=$( echo "$say" | grep http | sed -e 's/.*(//g' -e 's/)//g' | tail -n 1 )
+    cd imgur
+    curl -s "$pic_url" > picture
+    convert picture -resize 400 picture.jpg
+
+    if [ "$?" != "0" ]; then
+      say="🚫 Error fetching Image. Please try again. 🚫"
+      rm picture* ._* > /dev/null
+      print_msg
+      exit
+    fi
+
+    imgur_url=$( ./imgur.sh picture.jpg )
+    say=$( echo "<img src=\"$imgur_url\"></img>" )
+    rm picture* ._* > /dev/null
+    print_msg
+    exit
+  fi
+
+  say=$( echo "$say" | sed -e 's/.*/<br>&<\/br>/' | tr '\n' ' ' | sed -e 's/  /\&nbsp;\&nbsp;/g' )
+  say=$( echo "<b><u>$nick: </u></b>" "<p>$say</p>" )
   print_msg
   exit
 fi
@@ -282,7 +303,7 @@ if [[ "$command" = \!* ]]; then
   screen -S wirebot -p0 -X hardcopy "$SELF"/wirebot.login
   login=$( cat wirebot.login | grep -v grep | grep "Login:" | sed 's/.*Login:\ //g' | xargs )
   rm wirebot.login
-  
+
   if [[ "$login" != "" ]]; then
     if [[ "$admin_user" == *"$login"* ]]; then
       allowed=1
@@ -326,13 +347,13 @@ if [ "$allowed" = 1 ]; then
   fi
   if [ "$command" = "!userjoin off" ]; then
     user_join_off
-  fi  
+  fi
   if [ "$command" = "!userleave on" ]; then
     user_leave_on
   fi
   if [ "$command" = "!userleave off" ]; then
     user_leave_off
-  fi 
+  fi
   fi
     if [ "$command" = "!kill_screen" ]; then
     say="Cya."
@@ -359,7 +380,7 @@ if [ "$allowed" = 1 ]; then
     if [ -f wirebot.stop ]; then
       rm wirebot.stop
   fi
- 
+
 fi
 
 $1
