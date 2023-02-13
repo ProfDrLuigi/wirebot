@@ -33,7 +33,7 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 
 	sudo apt install python
 	
-	pip install openai rsstail
+	pip install openai-cli rsstail
 	
 ### Getting started
 
