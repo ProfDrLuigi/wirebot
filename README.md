@@ -28,6 +28,12 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 **openSUSE**
 
 	sudo zypper install curl screen libtool libopenssl-devel sqlite3-devel libxml2-devel zlib-devel readline-devel libcurl-devel autoconf gcc make inotify-tools
+
+### If you want to use the openAI feature or RSS Feed you need this too:
+
+	sudo apt install python
+	
+	pip install openai rsstail
 	
 ### Getting started
 
@@ -149,6 +155,24 @@ If you got/send a msg you can cycle through the windows with:
 
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
+
+### openAI capability ###
+To use these Feature a free openAI Account is necessary. 
+
+https://openai.com/api/login
+
+After creating an account create an API Token and put it in the upper section of wirebot.sh.
+
+https://platform.openai.com/account/api-keys
+
+To use it in chat simply start every chat line with # or . e.g.
+
+	#How are you today?
+or
+
+	.How are you today?
+	
+and wait for the reply. You can speak in every language with him.
 
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
