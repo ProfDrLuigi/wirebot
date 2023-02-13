@@ -150,10 +150,11 @@ If you got/send a msg you can cycle through the windows with:
 	common_reply_on		Activate talkativeness
 	common_reply_off	Deactivate talkativeness	
 	
-	rss_on		Activate RSS Newsfeed
-	rss_off		Deactivate RSS Newsfeed
+	rss_on			Activate RSS Newsfeed
+	rss_off			Deactivate RSS Newsfeed
 
-By Prof. Dr. Luigi 
+By Prof. Dr. Luigi
+
 Original by Rafaël Warnault <dev@read-write.fr>
 
 ### openAI capability ###
