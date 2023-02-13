@@ -14,14 +14,24 @@ common_reply=1
 ####################################################
 ######### Watch a directory for new files ##########
 ####################################################
-watcher=0
+watcher=1
 watchdir="/PATH/TO/FILES"
+####################################################
+
+####################################################
+################## openAI Token ####################
+####################################################
+openai_token="TOKEN_ID"
 ####################################################
 
 ####################################################
 ################# RSS Feed On/Off ##################
 ####################################################
-rssfeed=0
+rssfeed=1
+interval=5m
+####################################################
+macrumors=1
+tarnkappe=1
 ####################################################
 
 ####################################################
@@ -145,6 +155,35 @@ function rssfeed_init {
   fi
 }
 
+if [[ "$command" = "#"* ]] || [[ "$command" = "."* ]]; then
+  conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' )
+  say=$( echo "$conversation" | openai complete -t "$openai_token" - )
+
+  if [[ "$say" == *"https"* ]]; then
+    pic_url=$( echo "$say" | grep http | sed -e 's/.*(//g' -e 's/)//g' | tail -n 1 )
+    cd imgur
+    curl -s "$pic_url" > picture
+    convert picture -resize 400 picture.jpg
+    
+    if [ "$?" != "0" ]; then
+      say="🚫 Error fetching Image. Please try again. 🚫"
+      rm picture* ._* > /dev/null
+      print_msg
+      exit
+    fi
+    
+    imgur_url=$( ./imgur.sh picture.jpg )
+    say=$( echo "<img src=\"$imgur_url\"></img>" )
+    rm picture* ._* > /dev/null
+    print_msg
+    exit
+  fi
+  
+  say=$( echo "$say" | sed -e 's/.*/<br>&<\/br>/' | tr '\n' ' ' | sed -e 's/  /\&nbsp;\&nbsp;/g' )
+  say=$( echo "<b><u>$nick: </u></b>" "<p>$say</p>" )
+  print_msg
+  exit
+fi
 
 ################ Option Section ################
 
