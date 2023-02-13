@@ -1,6 +1,5 @@
 #!/bin/bash
 #
-
 wirebot=$( cat wirebot.sh )
 macrumors=$( echo "$wirebot" | grep "macrumors=" | sed 's/macrumors=//g' )
 tarnkappe=$( echo "$wirebot" | grep "tarnkappe=" | sed 's/tarnkappe=//g' ) 
