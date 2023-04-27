@@ -157,7 +157,7 @@ function rssfeed_init {
 
 if [[ "$command" = "#"* ]] || [[ "$command" = "."* ]]; then
   conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' )
-  say=$( echo "$conversation" | openai complete -t "$openai_token" - )
+  say=$( python chatgpt.py "$conversation" )
 
   if [[ "$say" == *"https"* ]]; then
     pic_url=$( echo "$say" | grep http | sed -e 's/.*(//g' -e 's/)//g' | tail -n 1 )

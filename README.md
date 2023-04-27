@@ -78,7 +78,7 @@ This will require write permissions to `/usr/local/bin`, or whatever directory y
 	make
 	sudo make install
 	mkdir ~/.wirebot
-	cp wirebot.sh rss.sh config ~/.wirebot
+	cp wirebot.sh rss.sh config chatgpt.py ~/.wirebot
 	chmod +x ~/.wirebot/wirebot.sh
 
 Don't forget to put your credentials into ~/.wirebot/config before you start the bot the first time.
