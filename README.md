@@ -78,7 +78,7 @@ This will require write permissions to `/usr/local/bin`, or whatever directory y
 	make
 	sudo make install
 	mkdir ~/.wirebot
-	cp wirebot.sh rss.sh config chatgpt.py ~/.wirebot
+	cp wirebot.sh rss.sh config chatgpt.py edgegpt.py ~/.wirebot
 	chmod +x ~/.wirebot/wirebot.sh
 
 Don't forget to put your credentials into ~/.wirebot/config before you start the bot the first time.
@@ -156,6 +156,11 @@ If you got/send a msg you can cycle through the windows with:
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
 
+### EdgeGPT capability ###
+To use these Feature follow this instructions:
+https://github.com/ProfDrLuigi/EdgeGPT
+Cookie File must be named "edgegpt.cookies"
+
 ### openAI capability ###
 To use these Feature a free openAI Account is necessary. 
 
@@ -165,12 +170,9 @@ After creating an account create an API Token and put it in the upper section of
 
 https://platform.openai.com/account/api-keys
 
-To use it in chat simply start every chat line with # or . e.g.
+To use it in chat simply start every chat line with # e.g.
 
 	#How are you today?
-or
-
-	.How are you today?
 	
 and wait for the reply. You can speak in every language with him.
 
