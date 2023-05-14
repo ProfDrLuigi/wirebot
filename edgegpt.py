@@ -786,7 +786,7 @@ async def async_main(args: argparse.Namespace) -> None:
             )
             f.close()
             sys.stdout = sys.__stdout__
-            os.system("bash edgegpt.sh")
+            os.system("bash wirebot.sh edgegpt")
         else:
             wrote = 0
             if args.rich:

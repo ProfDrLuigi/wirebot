@@ -1,6 +1,5 @@
 #!/bin/bash
 #
-#
 
 ####################################################
 #### Switch desired function on or off (0 or 1).####
@@ -15,13 +14,26 @@ common_reply=1
 ######### Watch a directory for new files ##########
 ####################################################
 watcher=1
-watchdir="/PATH/TO/FILES"
+watchdir="/PATH/TO/DIR"
 ####################################################
 
 ####################################################
-################## openAI Token ####################
+####################### GPT ########################
 ####################################################
-openai_token="TOKEN"
+gpt=edge
+#Options: edge, openai
+openai_token="YOUR_TOKEN"
+####################################################
+
+####################################################
+##################### EdgeGPT ######################
+####################################################
+edgegpt=1
+style=balanced
+#Options: creative, balanced, precise
+edgegpt_reconnect=1
+#In case of an Engine crash, start again.
+edgegpt_version="0.3.8.1"
 ####################################################
 
 ####################################################
@@ -38,6 +50,53 @@ tarnkappe=1
 ### Let these users (login-name) control the bot ###
 ####################################################
 admin_user="admin,luigi,peter"
+####################################################
+
+####################################################
+############ Monitoring EdgeGPT Engine #############
+####################################################
+if [[ "$1" = "monitor" ]]; then
+  if [ ! -f edgegpt.history ]; then
+    echo 0 > edgegpt.history
+  fi
+  while true
+  do
+    if ! pgrep -f "edgegpt.py" > /dev/null
+    then
+      screen -S wirebot -p0 -X stuff "<n><b>💥 GPT Engine crashed! 💥 Please send again.</b></n>"^M
+      bash wirebot.sh edgegpt_init
+    fi
+    sleep 10
+  done
+fi
+####################################################
+
+####################################################
+############# Send Request to EdgeGPT ##############
+####################################################
+if [[ "$1" = "edgegpt" ]]; then
+nick=$( cat wirebot.cmd | sed 's/-###.*//g' | xargs )
+say=$( cat edgegpt.txt | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | sed -e 's/Bot://g' -e 's/You://g' -e 's/"/“/g' | grep -v '^\[' | sed -e 's/\[.*\]//g' -e 's/[[:space:]]\{1,\}\./\./g' -e 's/$/<\/br>/' -e 's/\s*$//' | xargs )
+say="<u><b>${nick}</b></u></br>${say}" 
+
+max_length=720
+while [ -n "$say" ]; do
+  line="${say:0:$max_length}"
+  say="${say:$max_length}"
+  if [ -n "$say" ]; then
+    last_space="$(echo "$line" | sed -nE "s/.* ([^ ]+)$/\1/p")"
+    if [ -n "$last_space" ]; then
+      line="${line%$last_space}"
+      say="${last_space}${say}"
+    fi
+  fi
+  screen -S wirebot -p0 -X stuff "/clear"^M
+  line="<n>${line}</n>"
+  screen -S wirebot -p0 -X stuff "$line"^M
+done
+
+exit
+fi
 ####################################################
 
 SELF=$(SELF=$(dirname "$0") && bash -c "cd \"$SELF\" && pwd")
@@ -70,8 +129,11 @@ function kill_screen {
   if [ -f wirebot.pid ]; then
     rm wirebot.pid
   fi
-    if [ -f rss.pid ]; then
+  if [ -f rss.pid ]; then
     rm rss.pid
+  fi
+  if [ -f edgegpt.pid ]; then
+    rm edgegpt.pid
   fi
   screen -XS wirebot quit
 }
@@ -122,6 +184,24 @@ function watcher_init {
   fi
 }
 
+function edgegpt_init {
+  screen -S wirebot -p "edgegpt" -X kill
+  pkill -f "wirebot.sh monitor"
+  if [ "$edgegpt" = 1 ]; then
+    screen -S wirebot -x -X screen -t edgegpt bash -c "python "$SELF"/edgegpt.py --cookie-file edgegpt.cookies --enter-once --no-stream --rich --style $style; exec bash" &
+    sleep 1
+    ps ax | grep -v grep | grep -v sleep | grep "./edgegpt.py" | grep -v "exec bash" | sed 's/\ .*//g' | xargs > edgegpt.pid
+    if [ $? = 0 ]; then
+      echo "Edge-GPT started."
+      if [ "$edgegpt_reconnect" = 1 ]; then
+        bash wirebot.sh monitor &
+      fi
+    else
+      echo "Error!!! Edge-GPT could not be started. Please try again."
+    fi
+  fi
+}
+
 function rssfeed_def {
   ./rss.sh
 }
@@ -131,7 +211,7 @@ function rssfeed_start {
   if [ "$check" = "" ]; then
     screen -S wirebot -x -X screen -t rss bash -c "bash "$SELF"/wirebot.sh rssfeed_def; exec bash" &
     sleep 2
-    ps ax | grep -v grep | grep -v sleep | grep "rss.sh" | sed 's/\ .*//g' | xargs > rss.pid
+    ps ax | grep -v grep | grep -v sleep | grep "rssfeed_def; exec bash" | sed 's/\ .*//g' | xargs > rss.pid
     echo "RSS feed started."
   else
     echo "RSS feed is already running!"
@@ -155,9 +235,80 @@ function rssfeed_init {
   fi
 }
 
-if [[ "$command" = "#"* ]] || [[ "$command" = "."* ]]; then
-  conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' )
+if [[ "$command" = "#"* ]]; then
+  conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' -e 's/#//g' )
+  
+  if [ "$gpt" = "edge" ]; then
+    gpt_check=$( ps ax | grep -v grep | grep -v sleep | grep "./edgegpt.py" | grep -v "exec bash" | sed 's/\ .*//g' | xargs )
+    if [[ $gpt_check != "" ]]; then
+      if [[ "$command" = "#xreset" ]]; then
+        say="<n><b>Conversation reset ...</b></n>"
+        print_msg
+        say=$( screen -S wirebot -p "edgegpt" -X stuff "xreset"^M )
+        exit
+      fi
+      if [[ "$command" = "#status" ]]; then
+        date_diff=$(($(date +%s) - $(stat -c %Y edgegpt.pid )))
+        edgegpt_up=$( printf "%02d/%02d:%02d:%02d\n" "$((date_diff / 86400))" "$((date_diff / 3600 % 24))" "$((date_diff / 60 % 60))" "$((date_diff % 60))"  )
+        date_diff=$(($(date +%s) - $(stat -c %Y edgegpt.history )))
+        edgegpt_last=$( printf "%02d/%02d:%02d:%02d\n" "$((date_diff / 86400))" "$((date_diff / 3600 % 24))" "$((date_diff / 60 % 60))" "$((date_diff % 60))" )
+        edgegpt_no_requests=$(head -n 1 edgegpt.history)
+        say="<n><b><u>Status</b></u></br></br>Style&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $style</br>Runtime&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $edgegpt_up</br>Last Request: $edgegpt_last</br>N° Requests&nbsp;:&nbsp;$edgegpt_no_requests</br>Version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a href="https://github.com/acheong08/EdgeGPT/tree/master">$edgegpt_version</a></n>"
+        print_msg
+        exit
+      fi
+      if [[ "$command" = "#style"* ]]; then
+        if [[ "$command" = "#style creative" ]]; then
+   	    style="creative"
+   	  fi
+        if [[ "$command" = "#style balanced" ]]; then
+   	    style="balanced"
+   	  fi
+         if [[ "$command" = "#style precise" ]]; then
+   	    style="precise"
+   	  fi
+        say="<n><b>Style changed to '$style'</b></n>"
+        sed -i "0,/.*style=.*/ s/.*style=.*/style=$style/g" wirebot.sh
+        print_msg
+   	  screen -S wirebot -p "edgegpt" -X kill
+        edgegpt_init
+        exit
+      fi
+      if [[ "$command" = "#help" ]]; then
+  	  say="<n><b><u>Available Commands</b></u></br></br>1) <span style="font-family:Courier">#YOUR TEXT</span> (Talk with Bot)</br>2) <span style="font-family:Courier">#style <b>creative|balanced|precise</b></span></br>3) <span style="font-family:Courier">#status</span></br>4) <span style="font-family:Courier">#xreset</span> (Reset conversation)</n>"
+        print_msg
+        exit
+      fi
+      screen -S wirebot -p "edgegpt" -X stuff "$conversation"^M
+      screen -S wirebot -p "wirebot" -X stuff "/afk"^M
+  	  date >> edgegpt.history
+      echo "$nick": "$conversation" >> edgegpt.history
+  	  value=$(head -n 1 edgegpt.history)
+  	  new_value=$((value + 1))
+  	  sed -i "1s/.*/$new_value/" edgegpt.history
+      exit
+    else
+      screen -S wirebot -p "edgegpt" -X kill
+      screen -S wirebot -x -X screen -t edgegpt bash -c "python "$SELF"/edgegpt.py --cookie-file edgegpt.cookies --enter-once --no-stream --rich --style $style; exec bash"
+      sleep 1
+      screen -S wirebot -p "edgegpt" -X stuff "$conversation"^M
+      screen -S wirebot -p "wirebot" -X stuff "/afk"^M
+      date >> edgegpt.history
+  	  echo "$nick": "$conversation" >> edgegpt.history
+  	  value=$(head -n 1 edgegpt.history)
+  	  new_value=$((value + 1))
+  	  sed -i "1s/.*/$new_value/" edgegpt.history
+      exit
+    fi
+  fi
+
   say=$( python chatgpt.py "$conversation" )
+
+  if [ "$say" = "" ]; then
+    say=$( echo "📡 Can't connect to openAI Network. Resource busy. :(" )
+    print_msg
+    exit
+  fi
 
   if [[ "$say" == *"https"* ]]; then
     pic_url=$( echo "$say" | grep http | sed -e 's/.*(//g' -e 's/)//g' | tail -n 1 )

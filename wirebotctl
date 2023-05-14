@@ -2,6 +2,7 @@
 
 PIDFILE="$HOME/.wirebot/wirebot.pid"
 PIDFILE_WATCHER="$HOME/.wirebot/watcher.pid"
+PIDFILE_EDGEGPT="$HOME/.wirebot/edgegpt.pid"
 CONFIGFILE="$HOME/.wirebot/config"
 BASHFILE="$HOME/.wirebot/wirebot.sh"
 
@@ -46,9 +47,12 @@ case $CMD in
 
 		if screen -Sdm wirebot $WIREBOT/wirebot ; then
 			/bin/bash "$HOME/.wirebot/wirebot.sh" watcher_init
-			#echo "$PROG: $CMD: wirebot started"
 			/bin/bash "$HOME/.wirebot/wirebot.sh" rssfeed_init
-			#echo "RSS feed started"
+			check_gpt=$( cat wirebot.sh | grep -w "gpt=*" | head -n 1 | sed 's/gpt=//g' )
+			if [ "$check_gpt" = "edge" ]; then
+			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
+			fi
+
 		else
 			echo "$PROG: $CMD: wirebot could not be started"
 		fi
@@ -64,10 +68,14 @@ case $CMD in
 			if [ -f "$HOME/.wirebot/wirebot.pid" ];then
 			  rm "$HOME/.wirebot/wirebot.pid"
 			fi
+			if [ -f "$HOME/.wirebot/edgegpt.pid" ];then
+			  rm "$HOME/.wirebot/edgegpt.pid"
+			fi
 			if [ -f "$HOME/.wirebot/rss.pid" ];then
 			  rm "$HOME/.wirebot/rss.pid"
 			fi
 			echo "$PROG: $CMD: wirebot stopped"
+			pkill -f edgegpt_check.sh
 		else
 			echo "$PROG: $CMD: wirebot could not be stopped"
 			exit 1
@@ -122,6 +130,9 @@ case $CMD in
 				if [ -f "$HOME/.wirebot/watcher.pid" ];then
 				  rm "$HOME/.wirebot/watcher.pid"
 				fi
+				if [ -f "$HOME/.wirebot/edgegpt.pid" ];then
+				  rm "$HOME/.wirebot/edgegpt.pid"
+				fi
 				if [ -f "$HOME/.wirebot/wirebot.pid" ];then
 				  rm "$HOME/.wirebot/wirebot.pid"
 				fi
@@ -132,9 +143,21 @@ case $CMD in
 			fi
 		fi
 
-		if screen -Sdm wirebot $WIREBOT/wirebot; then
+		checkpid
+
+		if [ $RUNNING -eq 1 ]; then
+			echo "$PROG: $CMD: wirebot (pid $PID) already running"
+			exit 1
+		fi
+
+		if screen -Sdm wirebot $WIREBOT/wirebot ; then
 			/bin/bash "$HOME/.wirebot/wirebot.sh" watcher_init
-			echo "$PROG: $CMD: wirebot started"
+			/bin/bash "$HOME/.wirebot/wirebot.sh" rssfeed_init
+			check_gpt=$( cat wirebot.sh | grep -w "gpt=*" | head -n 1 | sed 's/gpt=//g' )
+			if [ "$check_gpt" = "edge" ]; then
+			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
+			fi
+
 		else
 			echo "$PROG: $CMD: wirebot could not be started"
 		fi
