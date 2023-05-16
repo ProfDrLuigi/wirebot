@@ -49,7 +49,7 @@ case $CMD in
 			/bin/bash "$HOME/.wirebot/wirebot.sh" watcher_init
 			/bin/bash "$HOME/.wirebot/wirebot.sh" rssfeed_init
 			check_gpt=$( cat wirebot.sh | grep -w "gpt=*" | head -n 1 | sed 's/gpt=//g' )
-			if [ "$check_gpt" = "edge" ]; then
+			if [ "$check_gpt" = "edgegpt" ]; then
 			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
 			fi
 
@@ -60,7 +60,10 @@ case $CMD in
 
 	stop)
 		checkrunning
-
+		pkill -f edgegpt_check.sh
+		pkill -f edgegpt_init
+  		pkill -f "wirebot.sh monitor"
+		
 		if screen -XS wirebot quit; then
 			if [ -f "$HOME/.wirebot/watcher.pid" ];then
 			  rm "$HOME/.wirebot/watcher.pid"
@@ -76,6 +79,8 @@ case $CMD in
 			fi
 			echo "$PROG: $CMD: wirebot stopped"
 			pkill -f edgegpt_check.sh
+			pkill -f edgegpt_init
+  			pkill -f "wirebot.sh monitor"
 		else
 			echo "$PROG: $CMD: wirebot could not be stopped"
 			exit 1
@@ -126,7 +131,7 @@ case $CMD in
 		checkpid
 
 		if [ $RUNNING -eq 1 ]; then
-			if screen -XS wirebot quit; then
+			if screen -ls | grep "wirebot" | cut -d. -f1 | awk '{print $1}' | xargs -I {} screen -S {} -X quit; then
 				if [ -f "$HOME/.wirebot/watcher.pid" ];then
 				  rm "$HOME/.wirebot/watcher.pid"
 				fi
@@ -154,7 +159,7 @@ case $CMD in
 			/bin/bash "$HOME/.wirebot/wirebot.sh" watcher_init
 			/bin/bash "$HOME/.wirebot/wirebot.sh" rssfeed_init
 			check_gpt=$( cat wirebot.sh | grep -w "gpt=*" | head -n 1 | sed 's/gpt=//g' )
-			if [ "$check_gpt" = "edge" ]; then
+			if [ "$check_gpt" = "edgegpt" ]; then
 			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
 			fi
 
