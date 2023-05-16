@@ -29,11 +29,13 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 
 	sudo zypper install curl screen libtool libopenssl-devel sqlite3-devel libxml2-devel zlib-devel readline-devel libcurl-devel autoconf gcc make inotify-tools
 
-### If you want to use the openAI feature or RSS Feed you need this too:
+### If you want to use the openAI/EdgeGPT feature or RSS Feed you need this too:
 
 	sudo apt install python
 	
 	pip install openai rsstail
+	
+	python3 -m pip install EdgeGPT --upgrade
 	
 ### Getting started
 
@@ -78,8 +80,8 @@ This will require write permissions to `/usr/local/bin`, or whatever directory y
 	make
 	sudo make install
 	mkdir ~/.wirebot
-	cp wirebot.sh rss.sh config chatgpt.py ~/.wirebot
-	chmod +x ~/.wirebot/wirebot.sh
+	cp wirebot.sh rss.sh config chatgpt.py edgegpt.py ~/.wirebot
+	chmod +x ~/.wirebot/wirebot.sh ~/.wirebot/edgegpt.py ~/.wirebot/chatgpt.sh
 
 Don't forget to put your credentials into ~/.wirebot/config before you start the bot the first time.
 
@@ -156,6 +158,13 @@ If you got/send a msg you can cycle through the windows with:
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
 
+### EdgeGPT capability ###
+To use these Feature follow this instructions:
+
+https://github.com/ProfDrLuigi/EdgeGPT
+
+Cookie File must be named "edgegpt.cookies"
+
 ### openAI capability ###
 To use these Feature a free openAI Account is necessary. 
 
@@ -165,12 +174,9 @@ After creating an account create an API Token and put it in the upper section of
 
 https://platform.openai.com/account/api-keys
 
-To use it in chat simply start every chat line with # or . e.g.
+To use it in chat simply start every chat line with # e.g.
 
 	#How are you today?
-or
-
-	.How are you today?
 	
 and wait for the reply. You can speak in every language with him.
 
