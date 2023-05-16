@@ -93,7 +93,7 @@ To start the installed wirebot, run:
 
 You can inject any Text from any script to the session this way:
 	
-	screen -S wirebot -p0 -X stuff "Hello world!"^M
+	screen -S wirebot -p "wirebot" -X stuff "Hello world!"^M
 
 To enter the running screen session simply type:
 	
