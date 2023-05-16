@@ -170,7 +170,7 @@ To use these Feature a free openAI Account is necessary.
 
 https://openai.com/api/login
 
-After creating an account create an API Token and put it in the upper section of wirebot.sh.
+After creating an account create an API Token and put it in the upper section of chatgpt.py.
 
 https://platform.openai.com/account/api-keys
 
