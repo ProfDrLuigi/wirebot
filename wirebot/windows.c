@@ -148,14 +148,19 @@ void wr_windows_add_window(wr_window_t *window)
 	wi_mutable_array_add_data(wr_windows, window);
 	wi_terminal_add_buffer(wr_terminal, window->buffer);
 
-	if (wr_window_is_private_chat(window) || wr_window_is_user(window))
-	{
-		if (wr_window_is_user(window))
-			wr_wprintf_prefix(window, WI_STR("Opened new window for private messages with %@"), wr_user_nick(window->user));
-		else
-			wr_wprintf_prefix(window, WI_STR("Opened new window for private chat"));
+	// luigi
 
-		wr_wprintf_prefix(window, WI_STR("Use ctrl-N/ctrl-P to cycle windows, and /close to exit"));
+	if (wr_window_is_private_chat(window))
+	{
+			wr_wprintf_prefix(window, WI_STR("Opened new window for private chat"));
+			wr_wprintf_prefix(window, WI_STR("Use ctrl-N/ctrl-P to cycle windows, and /close to exit"));
+ 			//system("screen -S wirebot -p bash -X stuff \"It's not supported to talk with me in private conversation. Please use the Main Chat only to talk to me. Closing session now. Bye. 👋🏼\"^M");
+ 			system("screen -S wirebot -p wirebot -X stuff \"/close\"^M");
+	}
+	
+	if (wr_window_is_user(window))
+	{
+			wr_wprintf_prefix(window, WI_STR("Opened new window for private chat"));
 	}
 }
 

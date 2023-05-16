@@ -110,7 +110,11 @@ command=$( cat wirebot.cmd | sed 's/.*-###-//g' | xargs )
 ################ Function Section ################
 
 function print_msg {
-  screen -S wirebot -p0 -X stuff "$say"^M
+  screen -S wirebot -p wirebot -X stuff "$say"^M
+}
+
+function decline_chat {
+  screen -S wirebot -p wirebot -X stuff "/close"^M
 }
 
 function rnd_answer {
