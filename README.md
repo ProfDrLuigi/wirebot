@@ -32,9 +32,7 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 ### If you want to use the openAI/EdgeGPT feature or RSS Feed you need this too:
 
 	sudo apt install python3
-	
 	pip install openai rsstail
-	
 	python3 -m pip install EdgeGPT --upgrade
 	
 ### Getting started
