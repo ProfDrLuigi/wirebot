@@ -31,10 +31,8 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 
 ### If you want to use the openAI/EdgeGPT feature or RSS Feed you need this too:
 
-	sudo apt install python
-	
+	sudo apt install python3
 	pip install openai rsstail
-	
 	python3 -m pip install EdgeGPT --upgrade
 	
 ### Getting started
@@ -93,7 +91,7 @@ To start the installed wirebot, run:
 
 You can inject any Text from any script to the session this way:
 	
-	screen -S wirebot -p0 -X stuff "Hello world!"^M
+	screen -S wirebot -p "wirebot" -X stuff "Hello world!"^M
 
 To enter the running screen session simply type:
 	
@@ -170,7 +168,7 @@ To use these Feature a free openAI Account is necessary.
 
 https://openai.com/api/login
 
-After creating an account create an API Token and put it in the upper section of wirebot.sh.
+After creating an account create an API Token and put it in the upper section of chatgpt.py.
 
 https://platform.openai.com/account/api-keys
 
