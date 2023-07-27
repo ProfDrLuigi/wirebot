@@ -107,7 +107,7 @@ To leave the session (not closing!) type:
 
 	ctrl + a and than d
 
-##### 6. Configuration
+##### 1. Configuration
 
 Default path for the configuration file is:
 
@@ -127,7 +127,7 @@ If you want to know the available commands of the wirebot type
 	
 in the Chat Main window.
 
-#### 7. Control wirebot:
+#### 2. Control wirebot:
 
 	Usage:  wirebotctl [COMMAND]
 
