@@ -10,8 +10,6 @@ BASHFILE="$HOME/.wirebot/wirebot.sh"
 # The path to your wirebot binary
 WIREBOT=$( SELF=$(dirname "$0") && bash -c "cd \"$SELF\" && pwd" )
 
-cd ~/.wirebot
-
 # Begin script
 PROG=$(basename $0)
 CMD=$1
@@ -85,8 +83,17 @@ case $CMD in
 			if [ -f "$HOME/.wirebot/gpt.pid" ];then
 			  rm "$HOME/.wirebot/gpt.pid"
 			fi
+			if [ -f "$HOME/.wirebot/gpt.history" ];then
+			  rm "$HOME/.wirebot/gpt.history"
+			fi
 			if [ -f "$HOME/.wirebot/rss.pid" ];then
 			  rm "$HOME/.wirebot/rss.pid"
+			fi
+			if [ -f "$HOME/.wirebot/wirebot.cmd" ];then
+			  rm "$HOME/.wirebot/wirebot.cmd"
+			fi
+			if [ -f "$HOME/.wirebot/wirebot.txt" ];then
+			  rm "$HOME/.wirebot/wirebot.txt"
 			fi
 			echo "$PROG: $CMD: wirebot stopped"
 			pkill -f edgegpt_check.sh
