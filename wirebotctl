@@ -10,6 +10,8 @@ BASHFILE="$HOME/.wirebot/wirebot.sh"
 # The path to your wirebot binary
 WIREBOT=$( SELF=$(dirname "$0") && bash -c "cd \"$SELF\" && pwd" )
 
+cd ~/.wirebot
+
 # Begin script
 PROG=$(basename $0)
 CMD=$1
