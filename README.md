@@ -1,16 +1,14 @@
 # wirebot for UNIX
 
-## Introduction
-
 wirebot is a command line client for the Wired 2.0 + 2.5 protocol.
 
 This is the former CLI client "wire" (https://github.com/nark/wire) which has now been extended with bot functions by me. It is controlled via bash. See the file "wirebot.sh" (which must be located in the ~/.wirebot folder) for details.
-
-## Install wirebot (UNIX-like systems)
-
-This tutorial explains how to install and run wirebot on an UNIX-like operating system.
-
-### Howto install on:
+<details>
+<summary>
+<h2>
+Install wirebot essentials (UNIX-like systems)
+</h2>
+</summary>
 
 **Ubuntu/Debian10 and higher only**
 
@@ -29,13 +27,14 @@ This tutorial explains how to install and run wirebot on an UNIX-like operating 
 
 	sudo zypper install curl screen libtool libopenssl-devel sqlite3-devel libxml2-devel zlib-devel readline-devel libcurl-devel autoconf gcc make inotify-tools
 
-### If you want to use the openAI/EdgeGPT feature or RSS Feed you need this too:
+</details>
 
-	sudo apt install python3
-	pip install openai rsstail
-	python3 -m pip install EdgeGPT --upgrade
-	
-### Getting started
+<details>
+<summary>
+<h2>
+Building wirebot
+</h2>
+</summary>
 
 Installing wirebot from sources will be done using the Autotools standard (configure, make, make install).
 
@@ -78,12 +77,19 @@ This will require write permissions to `/usr/local/bin`, or whatever directory y
 	make
 	sudo make install
 	mkdir ~/.wirebot
-	cp wirebot.sh rss.sh config chatgpt.py edgegpt.py ~/.wirebot
-	chmod +x ~/.wirebot/wirebot.sh ~/.wirebot/edgegpt.py ~/.wirebot/chatgpt.sh
+	cp wirebot.sh rss.sh config update_* ~/.wirebot
+	chmod +x ~/.wirebot/wirebot.sh
 
 Don't forget to put your credentials into ~/.wirebot/config before you start the bot the first time.
 
-##### 5. Running wirebot (runs in a screen session)
+</details>
+
+<details>
+<summary>
+<h2>
+Running and controlling wirebot
+</h2>
+</summary>
 
 To start the installed wirebot, run:
 
@@ -117,13 +123,9 @@ Example configuration:
 	
 If you want to know the available commands of the wirebot type
 
-	/help
+	#help
 	
 in the Chat Main window.
-
-If you got/send a msg you can cycle through the windows with:
-
-	ctrl+n / ctrl+p
 
 #### 7. Control wirebot:
 
@@ -156,22 +158,52 @@ If you got/send a msg you can cycle through the windows with:
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
 
-### EdgeGPT capability ###
-To use these Feature follow this instructions:
+</details>
 
-https://github.com/ProfDrLuigi/EdgeGPT
+<details>
+<summary>
+<h2>
+GPT (Bard, ChatGPT, EdgeGPT)
+</h2>
+</summary>
+	
+### If you want to use ChatGPT, EdgeGPT or Bard feature you need this: ###
 
-Cookie File must be named "edgegpt.cookies"
+	sudo apt install python3 python3-pip
+	/bin/bash ~/.wirebot/update_bard.sh
+	/bin/bash ~/.wirebot/update_chatgpt.sh 
+	/bin/bash ~/.wirebot/update_edgegpt.sh
 
-### openAI capability ###
-To use these Feature a free openAI Account is necessary. 
+You can re-use this scripts for update checking and installing.
+
+### --- EdgeGPT --- ###
+Follow this instructions to configure generally:
+
+https://github.com/acheong08/EdgeGPT
+
+Cookie file must be named "edgegpt.cookies" and be placed in directory
+
+	~/.wirebot/
+
+### --- ChatGPT --- ###
+To use these Feature a (free) openAI Account is necessary. 
 
 https://openai.com/api/login
 
-After creating an account create an API Token and put it in the upper section of chatgpt.py.
+Create an API Token or you can put the account credeintials in the config file of "ChatGPT". It´s on you.
 
 https://platform.openai.com/account/api-keys
 
+Further informations to config ChatGPT are here:
+
+https://github.com/acheong08/ChatGPT
+
+### --- Bard --- ##
+Follow this instructions to configure generally:
+
+https://github.com/acheong08/Bard
+
+### --- General use --- ##
 To use it in chat simply start every chat line with # e.g.
 
 	#How are you today?
@@ -180,12 +212,25 @@ and wait for the reply. You can speak in every language with him.
 
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
+To see all possible options of the bot type
+
+	#help
+
+in main chat window.
+</details>
+
+<details>
+<summary>
+<h2>
+RSS Feed (MacRumors / Tarnkappe)
+</h2>
+</summary>
+
+### If you want to use RSS Feed you need this:
+
+	sudo apt install rsstail
+</details>
+
 ### Troubleshootings
 
 This implementation of the Wired 2.0/2.5 protocol is not compliant with the version of the protocol distributed by Zanka Software, for several deep technical reasons.
-
-CONTRIBUTORS
-============
-
-- Erik Tengblad
-- christ25
