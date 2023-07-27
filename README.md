@@ -155,7 +155,8 @@ in the Chat Main window.
 	rssfeed_on		Activate RSS Newsfeed
 	rssfeed_off		Deactivate RSS Newsfeed
 
-By Prof. Dr. Luigi 
+By Prof. Dr. Luigi
+
 Original by Rafaël Warnault <dev@read-write.fr>
 
 </details>
