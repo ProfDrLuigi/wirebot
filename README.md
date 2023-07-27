@@ -82,6 +82,14 @@ This will require write permissions to `/usr/local/bin`, or whatever directory y
 
 Don't forget to put your credentials into ~/.wirebot/config before you start the bot the first time.
 
+#### Copy wirebotctl beside the wirebot binary
+
+In case of default path it looks like this:
+
+	chmod +x wirebotctl
+	cp wirebotctl /usr/local/bin/.
+
+
 </details>
 
 <details>
