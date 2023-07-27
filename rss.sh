@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+
 wirebot=$( cat wirebot.sh )
 macrumors=$( echo "$wirebot" | grep "macrumors=" | sed 's/macrumors=//g' )
 tarnkappe=$( echo "$wirebot" | grep "tarnkappe=" | sed 's/tarnkappe=//g' ) 
@@ -17,8 +18,10 @@ function macrumors_rss {
 function tarnkappe_rss {
   tarnkappe_feed=$( rsstail -1 -u https://feeds.feedburner.com/tarnkappe/ERFS -d -n 1 | sed -e 's/<p>Der\ Artikel\ //g' -e 's/\ erschien\ zuerst\ auf\ <a\ rel.*//g' )
   title=$( echo "$tarnkappe_feed" | grep "Title:" | sed 's/Title:\ //g' )
-  descr=$( echo "$tarnkappe_feed" | sed 's/.*Description\:\ //g' | sed 's/\.html".*/\.html">"Gehe zu tarnkappe.info"<\/a>/g' |grep -v "Title: " )
-  tarnkappe_say=$( echo "<b><u>""$title""<\/u><\/b>""$descr" |xargs )
+  descr=$( echo "$tarnkappe_feed" | sed 's/.*Description\:\ //g' | sed -e 's/\.html".*/\.html">Ganzen Artikel bei Tarnkappe lesen<\/a>/g' |grep -v "Title: " )
+  #tarnkappe_say=$( echo -e "<n><b><u>""$title""</u></b><br>""$descr""</n>" | sed ':a;N;$!ba;s/\n//g' )
+  tarnkappe_say=$( echo -e "<b><u>""$title""</u></b><br>""$descr" | sed ':a;N;$!ba;s/\n//g' )
+  #echo "$tarnkappe_say" > debug
 }
 
 if [ "$macrumors" = "1" ]; then
@@ -34,7 +37,7 @@ do
     macrumors_now=$( curl "https://feeds.macrumors.com/MacRumors-All" 2> /dev/null | grep pubDate | head -1 )
   fi
   if [ "$tarnkappe" = "1" ]; then
-    sleep 5
+    tarnkappe_rss
     tarnkappe_now=$( echo "$title" )
   fi
 

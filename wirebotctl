@@ -3,6 +3,7 @@
 PIDFILE="$HOME/.wirebot/wirebot.pid"
 PIDFILE_WATCHER="$HOME/.wirebot/watcher.pid"
 PIDFILE_EDGEGPT="$HOME/.wirebot/edgegpt.pid"
+PIDFILE_BARD="$HOME/.wirebot/bard.pid"
 CONFIGFILE="$HOME/.wirebot/config"
 BASHFILE="$HOME/.wirebot/wirebot.sh"
 
@@ -52,7 +53,12 @@ case $CMD in
 			if [ "$check_gpt" = "edgegpt" ]; then
 			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
 			fi
-
+                        if [ "$check_gpt" = "bard" ]; then
+                          /bin/bash "$HOME/.wirebot/wirebot.sh" bard_init
+                        fi
+                        if [ "$check_gpt" = "chatgpt" ]; then
+                          /bin/bash "$HOME/.wirebot/wirebot.sh" chatgpt_init
+                        fi
 		else
 			echo "$PROG: $CMD: wirebot could not be started"
 		fi
@@ -62,8 +68,11 @@ case $CMD in
 		checkrunning
 		pkill -f edgegpt_check.sh
 		pkill -f edgegpt_init
-  		pkill -f "wirebot.sh monitor"
-		
+  		pkill -f "wirebot.sh monitor_gpt"
+		pkill -f bard_check.sh
+                pkill -f bard_init
+		pkill -f chatgpt_init
+		pkill -f chatgpt_check.sh
 		if screen -XS wirebot quit; then
 			if [ -f "$HOME/.wirebot/watcher.pid" ];then
 			  rm "$HOME/.wirebot/watcher.pid"
@@ -71,8 +80,8 @@ case $CMD in
 			if [ -f "$HOME/.wirebot/wirebot.pid" ];then
 			  rm "$HOME/.wirebot/wirebot.pid"
 			fi
-			if [ -f "$HOME/.wirebot/edgegpt.pid" ];then
-			  rm "$HOME/.wirebot/edgegpt.pid"
+			if [ -f "$HOME/.wirebot/gpt.pid" ];then
+			  rm "$HOME/.wirebot/gpt.pid"
 			fi
 			if [ -f "$HOME/.wirebot/rss.pid" ];then
 			  rm "$HOME/.wirebot/rss.pid"
@@ -80,7 +89,11 @@ case $CMD in
 			echo "$PROG: $CMD: wirebot stopped"
 			pkill -f edgegpt_check.sh
 			pkill -f edgegpt_init
-  			pkill -f "wirebot.sh monitor"
+  			pkill -f "wirebot.sh monitor_gpt"
+			pkill -f bard_check.sh
+                	pkill -f bard_init
+                	pkill -f chatgpt_init
+                	pkill -f chatgpt_check.sh
 		else
 			echo "$PROG: $CMD: wirebot could not be stopped"
 			exit 1
@@ -135,8 +148,8 @@ case $CMD in
 				if [ -f "$HOME/.wirebot/watcher.pid" ];then
 				  rm "$HOME/.wirebot/watcher.pid"
 				fi
-				if [ -f "$HOME/.wirebot/edgegpt.pid" ];then
-				  rm "$HOME/.wirebot/edgegpt.pid"
+				if [ -f "$HOME/.wirebot/gpt.pid" ];then
+				  rm "$HOME/.wirebot/gpt.pid"
 				fi
 				if [ -f "$HOME/.wirebot/wirebot.pid" ];then
 				  rm "$HOME/.wirebot/wirebot.pid"
@@ -162,7 +175,12 @@ case $CMD in
 			if [ "$check_gpt" = "edgegpt" ]; then
 			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
 			fi
-
+                        if [ "$check_gpt" = "bard" ]; then
+                          /bin/bash "$HOME/.wirebot/wirebot.sh" bard_init
+                        fi
+                        if [ "$check_gpt" = "chatgpt" ]; then
+                          /bin/bash "$HOME/.wirebot/wirebot.sh" chatgpt_init
+                        fi
 		else
 			echo "$PROG: $CMD: wirebot could not be started"
 		fi

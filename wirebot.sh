@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+##
 
 ####################################################
 #### Switch desired function on or off (0 or 1).####
@@ -14,13 +14,13 @@ common_reply=1
 ######### Watch a directory for new files ##########
 ####################################################
 watcher=1
-watchdir="PATH_TO_FILES"
+watchdir="/PATH/TO/FILES"
 ####################################################
 
 ####################################################
 ####################### GPT ########################
 ####################################################
-gpt=edgegpt
+gpt=bard
 #Options: edgegpt, chatgpt, bard, none
 ####################################################
 
@@ -30,10 +30,32 @@ gpt=edgegpt
 style=balanced
 #Options: creative, balanced, precise
 ####################################################
+edgegpt_name="EdgeGPT"
 edgegpt_reconnect=1
 #In case of an Engine crash, start again.
+edgegpt_version="0.12.1"
+#Shows up if '#status' is written in chat
 ####################################################
-edgegpt_version="0.4.2"
+
+####################################################
+####################### Bard #######################
+####################################################
+bard_name="Google Bard"
+PSID=
+PSIDTS=
+bard_reconnect=1
+#In case of an Engine crash, start again.
+bard_version="2.1.0"
+#Shows up if '#status' is written in chat
+####################################################
+
+####################################################
+##################### ChatGPT ######################
+####################################################
+chatgpt_name="ChatGPT"
+chatgpt_reconnect=1
+#In case of an Engine crash, start again.
+chatgpt_version="6.8.6"
 #Shows up if '#status' is written in chat
 ####################################################
 
@@ -53,59 +75,126 @@ tarnkappe=1
 admin_user="admin,luigi,peter"
 ####################################################
 
+SELF=$(SELF=$(dirname "$0") && bash -c "cd \"$SELF\" && pwd")
+cd "$SELF"
+
+if [ "$gpt" = "edgegpt" ]; then
+  engine_name="EdgeGPT"
+elif [ "$gpt" = "bard" ]; then
+  engine_name="Google Bard"
+elif [ "$gpt" = "chatgpt" ]; then
+  engine_name="ChatGPT"
+fi
+
 ####################################################
-############ Monitoring EdgeGPT Engine #############
+############## Monitoring GPT Engine ###############
 ####################################################
-if [[ "$1" = "monitor" ]]; then
-  if [ ! -f edgegpt.history ]; then
-    echo 0 > edgegpt.history
+if [[ "$1" = "monitor_gpt" ]]; then
+  if [ ! -f gpt.requests ]; then
+    echo -e "bard=0\nedgegpt=0\nchatgpt=0" > gpt.requests
   fi
   while true
   do
-    if ! pgrep -f "edgegpt.py" > /dev/null
-    then
-      screen -S wirebot -p0 -X stuff "<n><b>💥 GPT Engine crashed! 💥 Please send again.</b></n>"^M
-      bash wirebot.sh edgegpt_init
+    if [ "$gpt" = "edgegpt" ]; then
+      if ! pgrep -f "EdgeGPT.EdgeGPT" > /dev/null
+      then
+        screen -S wirebot -p0 -X stuff "<n><b>💥 GPT Engine crashed! 💥 Please send again.</b></n>"^M
+        bash wirebot.sh edgegpt_init
+      fi
+    fi
+    if [ "$gpt" = "bard" ]; then
+      if ! pgrep -f "Bard" > /dev/null
+      then
+        screen -S wirebot -p0 -X stuff "<n><b>💥 Bard Engine crashed! 💥 Please send again.</b></n>"^M
+        bash wirebot.sh bard_init
+      fi
+    fi
+    if [ "$gpt" = "chatgpt" ]; then
+      if ! pgrep -f "ChatGPT" > /dev/null
+      then
+        screen -S wirebot -p0 -X stuff "<n><b>💥 ChatGPT Engine crashed! 💥 Please send again.</b></n>"^M
+        bash wirebot.sh chatgpt_init
+      fi
     fi
     sleep 10
   done
 fi
 ####################################################
 
+nick=$( cat wirebot.cmd | sed 's/-###.*//g' | xargs )
+nick_low=$( echo "$nick" | tr '[:upper:]' '[:lower:]' )
+command=$( cat wirebot.cmd | sed 's/.*-###-//g' | xargs )
+
+function text_parser
+{
+  if [[ "$command" = *"Conversation"* ]] || [[ "$command" = *"Style changed"* ]] || [[ "$command" = *"[wirebot]"* ]]; then
+    exit
+  fi
+
+  say="<u><b>${nick}</b></u></br>${say}" 
+
+  max_length=720
+  while [ -n "$say" ]; do
+    line="${say:0:$max_length}"
+    say="${say:$max_length}"
+    if [ -n "$say" ]; then
+      last_space="$(echo "$line" | sed -nE "s/.* ([^ ]+)$/\1/p")"
+      if [ -n "$last_space" ]; then
+        line="${line%$last_space}"
+        say="${last_space}${say}"
+      fi
+    fi
+
+    screen -S wirebot -p0 -X stuff "/clear"^M
+    line="<n>${line}</n>"
+    screen -S wirebot -p0 -X stuff "$line"^M
+  done
+  
+  exit
+}
+
 ####################################################
 ############# Send Request to EdgeGPT ##############
 ####################################################
 if [[ "$1" = "edgegpt" ]]; then
-nick=$( cat wirebot.cmd | sed 's/-###.*//g' | xargs )
-say=$( cat edgegpt.txt | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | sed -e 's/Bot://g' -e 's/You://g' -e 's/"/“/g' | grep -v '^\[' | sed -e 's/\[.*\]//g' -e 's/[[:space:]]\{1,\}\./\./g' -e 's/$/<\/br>/' -e 's/\s*$//' | xargs )
-say="<u><b>${nick}</b></u></br>${say}" 
+  say=$( cat gpt.history | awk -v RS='Bot:' 'END{print "Bot:" $0}' | awk -v RS='You:' 'NR==1{print $0}' | sed -e 's/Bot://g' -e 's/Searching.*//g' -e 's/.*json//g' -e 's/Generating\ answers.*//g' -e 's/{[^}]*}//g' -e 's/`//g' -e 's/\[[^]]*\]//g' | grep -v '^\[' | grep -v '^\]' | grep -v http |sed -e '/./,$!d' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' -e 's/\ .\ /.\ /g' -e 's/.*}//g' | xargs )
 
-max_length=720
-while [ -n "$say" ]; do
-  line="${say:0:$max_length}"
-  say="${say:$max_length}"
-  if [ -n "$say" ]; then
-    last_space="$(echo "$line" | sed -nE "s/.* ([^ ]+)$/\1/p")"
-    if [ -n "$last_space" ]; then
-      line="${line%$last_space}"
-      say="${last_space}${say}"
-    fi
+  if [ "$say" = "" ]; then
+    exit
   fi
-  screen -S wirebot -p0 -X stuff "/clear"^M
-  line="<n>${line}</n>"
-  screen -S wirebot -p0 -X stuff "$line"^M
-done
 
-exit
+  text_parser
+
 fi
 ####################################################
 
-SELF=$(SELF=$(dirname "$0") && bash -c "cd \"$SELF\" && pwd")
-cd "$SELF"
+####################################################
+############## Send Request to Bard ################
+####################################################
+if [[ "$1" = "bard" ]]; then
+  say=$( cat gpt.history |sed -e '/./,$!d' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | sed 's/.*\[0m/•\ /g' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | sed 's/•/<\/br>•/g' |xargs )
 
-nick=$( cat wirebot.cmd | sed 's/-###.*//g' | xargs )
-nick_low=$( echo "$nick" | tr '[:upper:]' '[:lower:]' )
-command=$( cat wirebot.cmd | sed 's/.*-###-//g' | xargs )
+  if [ "$say" = "" ]; then
+    exit
+  fi
+
+  text_parser
+fi
+####################################################
+
+####################################################
+############ Send Request to ChatGPT ###############
+####################################################
+if [[ "$1" = "chatgpt" ]]; then
+  say=$( cat gpt.history | grep -v "1mChatbot:" | sed 's/^ \([0-9]\)/ <\/br><\/br>\1/1' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | xargs )
+
+  if [ "$say" = "" ]; then
+    exit
+  fi
+
+  text_parser
+fi
+####################################################
 
 ################ Function Section ################
 
@@ -115,6 +204,7 @@ function print_msg {
 
 function decline_chat {
   screen -S wirebot -p wirebot -X stuff "/close"^M
+  date > /tmp/yo
 }
 
 function rnd_answer {
@@ -137,11 +227,15 @@ function kill_screen {
   if [ -f rss.pid ]; then
     rm rss.pid
   fi
-  if [ -f edgegpt.pid ]; then
-    rm edgegpt.pid
+  if [ -f gpt.pid ]; then
+    rm gpt.pid
   fi
   pkill -f edgegpt_init
+  pkill -f bard_init
+  pkill -f "wirebot.sh monitor_gpt"
+  pkill -f "wirebot.sh monitor_gpt"
   screen -ls | grep "wirebot" | cut -d. -f1 | awk '{print $1}' | xargs -I {} screen -S {} -X quit
+  pkill -f wirebot
 }
 
 function watcher_def {
@@ -191,19 +285,91 @@ function watcher_init {
 }
 
 function edgegpt_init {
-  screen -S wirebot -p "edgegpt" -X kill
-  pkill -f "wirebot.sh monitor"
+  screen -S wirebot -p "gpt" -X kill
+  pkill -f "wirebot.sh monitor_gpt"
+  > gpt.history
+  sed -i '0,/.*gpt=.*/ s/.*gpt=.*/gpt=edgegpt/g' wirebot.sh
+  gpt="edgegpt"
   if [ "$gpt" = "edgegpt" ]; then
-    screen -S wirebot -x -X screen -t edgegpt bash -c "python "$SELF"/edgegpt.py --cookie-file edgegpt.cookies --enter-once --no-stream --rich --style $style; exec bash" &
+    #if [ -f gpt.requests ]; then
+	#    sed -i ':a;N;$!ba;s/\n//g; s/x//g' gpt.requests
+    #fi
+    screen -S wirebot -x -X screen -t gpt bash -c "python -m EdgeGPT.EdgeGPT --history-file ~/.wirebot/gpt.history --cookie-file ~/.wirebot/edgegpt.cookies --enter-once --style $style; exec bash" &
     sleep 1
-    ps ax | grep -v grep | grep -v sleep | grep "./edgegpt.py" | grep -v "exec bash" | xargs | sed 's/\ .*//g' > edgegpt.pid
+    ps ax | grep -v grep | grep -v sleep | grep "EdgeGPT.EdgeGPT" | grep -v "exec bash" | xargs | sed 's/\ .*//g' > gpt.pid
     if [ $? = 0 ]; then
-      echo "Edge-GPT started."
+      echo "EdgeGPT started."
+      if [[ "$command" != "#style"* ]]; then
+        say="🤖 Switched GPT Engine succesful to 'EdgeGPT' 🤖"
+        print_msg
+        say="/nick Wirebot (GPT: EdgeGPT)"
+        print_msg
+      fi
       if [ "$edgegpt_reconnect" = 1 ]; then
-        bash wirebot.sh monitor &
+        bash wirebot.sh monitor_gpt &
       fi
     else
       echo "Error!!! Edge-GPT could not be started. Please try again."
+    fi
+  fi
+}
+
+function bard_init {
+  screen -S wirebot -p "gpt" -X kill
+  pkill -f "wirebot.sh monitor_gpt"
+  > gpt.history
+  sed -i '0,/.*gpt=.*/ s/.*gpt=.*/gpt=bard/g' wirebot.sh
+  gpt="bard"
+  if [ "$gpt" = "bard" ]; then
+    #if [ -f gpt.requests ]; then
+	#    sed -i ':a;N;$!ba;s/\n//g; s/x//g' gpt.requests
+    #fi
+    screen -S wirebot -x -X screen -t gpt bash -c "python3 -m Bard --session "$PSID" --session_ts "$PSIDTS"; exec bash" &
+    sleep 1
+    ps ax | grep -v grep | grep -v sleep | grep "Bard" | grep -v "exec bash" | xargs | sed 's/\ .*//g' > gpt.pid
+    if [ $? = 0 ]; then
+      echo "Google Bard started."
+      if [[ "$command" != "#style"* ]]; then
+        say="🤖 Switched GPT Engine succesful to 'Google Bard' 🤖"
+        print_msg
+        say="/nick Wirebot (GPT: Google Bard)"
+        print_msg
+      fi
+      if [ "$bard_reconnect" = 1 ]; then
+        bash wirebot.sh monitor_gpt &
+      fi
+    else
+      echo "Error!!! Google Bard could not be started. Please try again."
+    fi
+  fi
+}
+
+function chatgpt_init {
+  screen -S wirebot -p "gpt" -X kill
+  pkill -f "wirebot.sh monitor_gpt"
+  > gpt.history
+  sed -i '0,/.*gpt=.*/ s/.*gpt=.*/gpt=chatgpt/g' wirebot.sh
+  gpt="chatgpt"
+  if [ "$gpt" = "chatgpt" ]; then
+    #if [ -f gpt.requests ]; then
+	#    sed -i ':a;N;$!ba;s/\n//g; s/x//g' gpt.requests
+    #fi
+    screen -S wirebot -x -X screen -t gpt bash -c "python3 -m revChatGPT.V1; exec bash" &
+    sleep 1
+    ps ax | grep -v grep | grep -v sleep | grep "ChatGPT" | grep -v "exec bash" | xargs | sed 's/\ .*//g' > gpt.pid
+    if [ $? = 0 ]; then
+      echo "ChatGPT started."
+      if [[ "$command" != "#style"* ]]; then
+        say="🤖 Switched GPT Engine succesful to 'ChatGPT' 🤖"
+        print_msg
+        say="/nick Wirebot (GPT: ChatGPT)"
+        print_msg
+      fi
+      if [ "$chatgpt_reconnect" = 1 ]; then
+        bash wirebot.sh monitor_gpt &
+      fi
+    else
+      echo "Error!!! ChatGPT could not be started. Please try again."
     fi
   fi
 }
@@ -243,26 +409,121 @@ function rssfeed_init {
 
 if [ "$gpt" != "none" ]; then
   if [[ "$command" = "#"* ]]; then
+    if [ "$gpt" = "bard" ]; then
+      gpt_version="$bard_version"
+      gpt_repo="https://github.com/acheong08/Bard/tree/master"
+    fi
+    if [ "$gpt" = "edgegpt" ]; then
+      gpt_version="$edgegpt_version"
+      gpt_repo="https://github.com/acheong08/EdgeGPT/tree/master"
+    fi
+    if [ "$gpt" = "chatgpt" ]; then
+      gpt_version="$chatgpt_version"
+      gpt_repo="https://github.com/acheong08/ChatGPT/tree/master"
+    fi
+    if [[ "$command" = "#engine"* ]]; then
+      if [[ "$command" = *"bard"* ]]; then
+        if [[ "$gpt" != "bard" ]]; then
+          bard_init
+        else
+          say="<b>🚫 This engine is already active. 🚫</b>"
+          print_msg
+          exit
+        fi
+      #fi  
+      elif [[ "$command" = *"edgegpt"* ]]; then
+        if [[ "$gpt" != "edgegpt" ]]; then
+          edgegpt_init
+        else
+          say="<b>🚫 This engine is already active. 🚫</b>"
+          print_msg
+          exit
+        fi
+      #fi
+      elif [[ "$command" = *"chatgpt"* ]]; then
+		if [[ "$gpt" != "chatgpt" ]]; then
+          chatgpt_init
+        else
+          say="<b>🚫 This engine is already active. 🚫</b>"
+          print_msg
+          exit
+        fi
+      else
+        say="Error! You must enter a valid engine. Type #help in Chat to see options"
+        print_msg
+      fi
+      exit
+    fi
+    if [[ "$command" = "#status" ]]; then
+      date_diff=$(($(date +%s) - $(stat -c %Y gpt.pid )))
+      gpt_up=$( printf "%02d/%02d:%02d:%02d\n" "$((date_diff / 86400))" "$((date_diff / 3600 % 24))" "$((date_diff / 60 % 60))" "$((date_diff % 60))"  )
+      date_diff=$(($(date +%s) - $(stat -c %Y gpt.history )))
+      gpt_last=$( printf "%02d/%02d:%02d:%02d\n" "$((date_diff / 86400))" "$((date_diff / 3600 % 24))" "$((date_diff / 60 % 60))" "$((date_diff % 60))" )
+
+      if [ "$gpt" = "bard" ]; then
+        gpt_no_requests=$( cat gpt.requests | grep -w "bard" | sed 's/.*=//g' )
+      fi
+      if [ "$gpt" = "edgegpt" ]; then
+        gpt_no_requests=$( cat gpt.requests | grep -w "edgegpt" | sed 's/.*=//g' )
+      fi
+      if [ "$gpt" = "chatgpt" ]; then
+        gpt_no_requests=$( cat gpt.requests | grep -w "chatgpt" | sed 's/.*=//g' )
+      fi
+      
+      say="<n><b><u>Status</b></u></br></br>Engine&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $engine_name</br>Style&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $style</br>Runtime&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $gpt_up</br>Last Request: $gpt_last</br>N° Requests&nbsp;:&nbsp;$gpt_no_requests</br>Version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a href="$gpt_repo">$gpt_version</a></n>"
+      
+      if [ "$gpt" != "edgegpt" ]; then
+        say=$( echo "$say" | sed 's/Style.*<\/br>Runtime/Runtime/g' )
+      fi 
+      
+      print_msg
+      exit
+    fi
+    if [[ "$command" = "#help" ]]; then
+      say="<n><b><u>Available Commands</b></u></br></br>1) <span style="font-family:Courier">#YOUR TEXT</span> (Talk with Bot)</br>2) <span style="font-family:Courier">#engine</span> <b>[bard|edgegpt|chatgpt]</b></br>3) <span style="font-family:Courier">#style <b>[creative|balanced|precise] --> Only for EdgeGPT <-- </b></span></br>4) <span style="font-family:Courier">#status</span></br>5) <span style="font-family:Courier">#reset</span> (Reset conversation)</n>"
+      print_msg
+      exit
+    fi
     conversation=$( echo "$command" | sed -e 's/b:\ //g' -e 's/B:\ //g' -e 's/#//g' )
     if [ "$gpt" = "edgegpt" ]; then
-      gpt_check=$( ps ax | grep -v grep | grep -v sleep | grep "./edgegpt.py" | grep -v "exec bash" | sed 's/\ p.*//g' | xargs )
+    	if [ -f gpt.pause ]; then
+			screen -S wirebot -p0 -X stuff "⏱️ $nick: GPT request queue full. Please try again in 60 seconds. ⏱️"^M
+			exit	
+		fi
+		
+    if [ "$command" != "#help"* ] && [ "$command" != "#engine"* ] && [ "$command" != "#status"* ] && [ "$command" != "#style"* ] && [ "$command" != "#reset"* ]; then
+    	echo "x" >> gpt.requests
+    fi
+
+    
+    count=$(grep -o "x" gpt.requests | wc -l)
+		if [[ $count -gt 200 ]]; then
+    		file_age=$(($(date +%s) - $(stat -c %Y gpt.requests)))
+    	if [[ $file_age -lt 6000 ]]; then
+    		screen -S wirebot -p0 -X stuff "💭️ $nick: GPT Request limit reached ... waiting $((60 - file_age)) s 💭"^M
+        	touch gpt.pause
+        	sleep $((6000 - file_age))
+        	rm gpt.pause
+        	#sed -i ':a;N;$!ba;s/\n//g; s/x//g' gpt.requests
+    	fi
+		else
+			if [ "$command" != "#help"* ] && [ "$command" != "#engine"* ] && [ "$command" != "#status"* ] && [ "$command" != "#style"* ] && [ "$command" != "#reset"* ]; then
+    			echo "x" >> gpt.requests
+    	fi
+		fi
+
+
+      gpt_check=$( ps ax | grep -v grep | grep -v sleep | grep "EdgeGPT.EdgeGPT" | grep -v "exec bash" | sed 's/\ p.*//g' | xargs )
+
       if [[ $gpt_check != "" ]]; then
-        if [[ "$command" = "#xreset" ]]; then
+        
+        if [[ "$command" = "#reset" ]]; then
           say="<n><b>Conversation reset ...</b></n>"
           print_msg
-          say=$( screen -S wirebot -p "edgegpt" -X stuff "xreset"^M )
+          say=$( screen -S wirebot -p "$gpt" -X stuff "!reset"^M )
           exit
         fi
-        if [[ "$command" = "#status" ]]; then
-          date_diff=$(($(date +%s) - $(stat -c %Y edgegpt.pid )))
-          edgegpt_up=$( printf "%02d/%02d:%02d:%02d\n" "$((date_diff / 86400))" "$((date_diff / 3600 % 24))" "$((date_diff / 60 % 60))" "$((date_diff % 60))"  )
-          date_diff=$(($(date +%s) - $(stat -c %Y edgegpt.history )))
-          edgegpt_last=$( printf "%02d/%02d:%02d:%02d\n" "$((date_diff / 86400))" "$((date_diff / 3600 % 24))" "$((date_diff / 60 % 60))" "$((date_diff % 60))" )
-          edgegpt_no_requests=$(head -n 1 edgegpt.history)
-          say="<n><b><u>Status</b></u></br></br>Style&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $style</br>Runtime&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: $edgegpt_up</br>Last Request: $edgegpt_last</br>N° Requests&nbsp;:&nbsp;$edgegpt_no_requests</br>Version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <a href="https://github.com/acheong08/EdgeGPT/tree/master">$edgegpt_version</a></n>"
-          print_msg
-          exit
-        fi
+        
         if [[ "$command" = "#style"* ]]; then
           if [[ "$command" = "#style creative" ]]; then
      	    style="creative"
@@ -276,40 +537,47 @@ if [ "$gpt" != "none" ]; then
           say="<n><b>Style changed to '$style'</b></n>"
           sed -i "0,/.*style=.*/ s/.*style=.*/style=$style/g" wirebot.sh
           print_msg
-     	  screen -S wirebot -p "edgegpt" -X kill
+     	  screen -S wirebot -p "gpt" -X kill
           edgegpt_init
           exit
         fi
-        if [[ "$command" = "#help" ]]; then
-    	  say="<n><b><u>Available Commands</b></u></br></br>1) <span style="font-family:Courier">#YOUR TEXT</span> (Talk with Bot)</br>2) <span style="font-family:Courier">#style <b>creative|balanced|precise</b></span></br>3) <span style="font-family:Courier">#status</span></br>4) <span style="font-family:Courier">#xreset</span> (Reset conversation)</n>"
-          print_msg
-          exit
-        fi
-        screen -S wirebot -p "edgegpt" -X stuff "$conversation"^M
+        screen -S wirebot -p "gpt" -X stuff "$conversation"^M
         screen -S wirebot -p "wirebot" -X stuff "/afk"^M
-    	  date >> edgegpt.history
-        echo "$nick": "$conversation" >> edgegpt.history
-    	  value=$(head -n 1 edgegpt.history)
-    	  new_value=$((value + 1))
-    	  sed -i "1s/.*/$new_value/" edgegpt.history
-        exit
+
+        value=$( cat gpt.requests | grep "$gpt" | sed 's/.*=//g' )
+        new_value=$(($value + 1))
+        sed -i "0,/.*$gpt=.*/ s/.*$gpt=.*/$gpt=$new_value/g" gpt.requests
+        
       else
-        screen -S wirebot -p "edgegpt" -X kill
-        screen -S wirebot -x -X screen -t edgegpt bash -c "python "$SELF"/edgegpt.py --cookie-file edgegpt.cookies --enter-once --no-stream --rich --style $style; exec bash"
+        screen -S wirebot -p "gpt" -X kill
+        screen -S wirebot -x -X screen -t "gpt" bash -c "python -m EdgeGPT.EdgeGPT --history-file ~/.wirebot/gpt.history --cookie-file ~/.wirebot/edgegpt.cookies --enter-once --style $style; exec bash"
         sleep 1
-        screen -S wirebot -p "edgegpt" -X stuff "$conversation"^M
+        screen -S wirebot -p "gpt" -X stuff "$conversation"^M
         screen -S wirebot -p "wirebot" -X stuff "/afk"^M
-        date >> edgegpt.history
-    	  echo "$nick": "$conversation" >> edgegpt.history
-    	  value=$(head -n 1 edgegpt.history)
+    	  value=$( cat gpt.requests | grep "$gpt" | sed 's/.*=//g' )
     	  new_value=$((value + 1))
-    	  sed -i "1s/.*/$new_value/" edgegpt.history
+    	  sed -i "0,/.*$gpt=.*/ s/.*$gpt=.*/$gpt=$new_value/g" gpt.requests
         exit
       fi
     fi
-  
+    if [ "$gpt" = "bard" ]; then
+      screen -S wirebot -p "gpt" -X stuff "$conversation\033\015"
+      screen -S wirebot -p "wirebot" -X stuff "/afk"^M
+
+      value=$( cat gpt.requests | grep "$gpt" | sed 's/.*=//g' )
+      new_value=$((value + 1))
+      sed -i "0,/.*$gpt=.*/ s/.*$gpt=.*/$gpt=$new_value/g" gpt.requests
+    fi
     if [ "$gpt" = "chatgpt" ]; then
-      say=$( python chatgpt.py "$conversation" )
+      screen -S wirebot -p "gpt" -X stuff "$conversation\033\015"
+      screen -S wirebot -p "wirebot" -X stuff "/afk"^M
+
+      value=$( cat gpt.requests | grep "$gpt" | sed 's/.*=//g' )
+      new_value=$((value + 1))
+      sed -i "0,/.*$gpt=.*/ s/.*$gpt=.*/$gpt=$new_value/g" gpt.requests
+    fi
+    if [ "$gpt" = "chatgpt_old" ]; then
+      say="$conversation"
     
       if [ "$say" = "" ]; then
         say=$( echo "📡 Can't connect to openAI Network. Resource busy. :(" )
@@ -342,6 +610,7 @@ if [ "$gpt" != "none" ]; then
       print_msg
       exit
     fi
+
   fi
 fi
 

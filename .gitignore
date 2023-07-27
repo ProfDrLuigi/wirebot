@@ -26,3 +26,7 @@ config.h
 config.h.in
 config.h.in~
 autom4te.cache
+._update_bard.sh
+._wirebot.sh
+._wirebotctl
+run/wirebot
