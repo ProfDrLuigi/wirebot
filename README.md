@@ -87,7 +87,7 @@ Don't forget to put your credentials into ~/.wirebot/config before you start the
 <details>
 <summary>
 <h2>
-Running and controlling wirebot
+Running, controlling and configuring wirebot
 </h2>
 </summary>
 
@@ -126,6 +126,17 @@ If you want to know the available commands of the wirebot type
 	#help
 	
 in the Chat Main window.
+
+### File watcher ###
+
+To change the Path of the folder which should be watched change the corresponding options in
+
+	~/.wirebot/wirebot.sh
+
+If you don't need this feature you can disable it by typing
+
+	/usr/local/bin/wirebot/./wirebotctl nowatch
+
 
 #### 2. Control wirebot:
 
@@ -230,6 +241,12 @@ RSS Feed (MacRumors / Tarnkappe)
 ### If you want to use RSS Feed you need this:
 
 	sudo apt install rsstail
+
+
+If you don't need this feature you can disable it by typing
+
+	/usr/local/bin/wirebot/./wirebotctl rss_off
+
 </details>
 
 ### Troubleshootings
