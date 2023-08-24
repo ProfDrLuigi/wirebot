@@ -246,10 +246,7 @@ RSS Feed (MacRumors / Tarnkappe)
 </h2>
 </summary>
 
-### If you want to use RSS Feed you need this:
-
-	sudo apt install rsstail
-
+### If you don't want to use RSS Feed:
 
 If you don't need this feature you can disable it by typing
 
