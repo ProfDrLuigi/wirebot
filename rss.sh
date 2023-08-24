@@ -16,12 +16,14 @@ function macrumors_rss {
 }
 
 function tarnkappe_rss {
-  tarnkappe_feed=$( rsstail -1 -u https://feeds.feedburner.com/tarnkappe/ERFS -d -n 1 | sed -e 's/<p>Der\ Artikel\ //g' -e 's/\ erschien\ zuerst\ auf\ <a\ rel.*//g' )
-  title=$( echo "$tarnkappe_feed" | grep "Title:" | sed 's/Title:\ //g' )
-  descr=$( echo "$tarnkappe_feed" | sed 's/.*Description\:\ //g' | sed -e 's/\.html".*/\.html">Ganzen Artikel bei Tarnkappe lesen<\/a>/g' |grep -v "Title: " )
-  #tarnkappe_say=$( echo -e "<n><b><u>""$title""</u></b><br>""$descr""</n>" | sed ':a;N;$!ba;s/\n//g' )
-  tarnkappe_say=$( echo -e "<b><u>""$title""</u></b><br>""$descr" | sed ':a;N;$!ba;s/\n//g' )
-  #echo "$tarnkappe_say" > debug
+  #tarnkappe_feed=$( rsstail -e 0 -u https://feeds.feedburner.com/tarnkappe/ERFS -d -n 1 | sed -e 's/<p>Der\ Artikel\ //g' -e 's/\ erschien\ zuerst\ auf\ <a\ rel.*//g' )
+  tarnkappe_feed=$( curl -s https://feeds.feedburner.com/tarnkappe/ERFS | sed -e 's/<p>Der\ Artikel\ //g' -e 's/\ erschien\ zuerst\ auf\ <a\ rel.*//g' )
+  #title=$( echo "$tarnkappe_feed" | grep "Title:" | sed 's/Title:\ //g' )
+  title=$( echo "$tarnkappe_feed" | grep "<title>" | head -n3 | tail -n1 | sed 's/<\/*title>//g' | xargs 2>/dev/null )
+  #descr=$( echo "$tarnkappe_feed" | sed 's/.*Description\:\ //g' | sed -e 's/\.html".*/\.html">Ganzen Artikel bei Tarnkappe lesen<\/a>/g' |grep -v "Title: " )
+  #descr=$( echo "$tarnkappe_feed" | grep "<description>" | head -n2 | tail -n1 | sed 's/<\/*description>//g' | xargs | sed -e 's/.*<p>//g' -e 's/<\/p>//g' )
+  url=$( echo "$tarnkappe_feed" | grep -v "Datenschutz" | xargs 2>/dev/null | sed -e 's/*.<description>//g' -e 's/<\/description>.*//g' -e 's/.*<p>Der\ Artikel/<p>Der\ Artikel/g' | sed 's/<\/*description>//g' | xargs | sed -e 's/.*<p>//g' -e 's/<\/p>//g' -e 's/].*//g' )
+  tarnkappe_say=$( echo -e "<b><u>""$title""</u></b><br>""$descr""$url" | sed ':a;N;$!ba;s/\n//g' )
 }
 
 if [ "$macrumors" = "1" ]; then
