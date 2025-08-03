@@ -194,9 +194,9 @@ GPT (Bard, ChatGPT, EdgeGPT)
 </h2>
 </summary>
 	
-### If you want to use ChatGPT, EdgeGPT or Bard feature you need this: ###
+### If you want to use GPT feature you need this (GPT feature is based on 'tgpt': ###
 
-	Install latest "Golang (go)" for your system
+	Install latest "Golang" (go) for your system
 
 You can re-use this scripts for update checking and installing.
 
