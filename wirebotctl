@@ -245,11 +245,11 @@ Usage:  wirebotctl [COMMAND]
 	common_reply_on		Activate talkativeness
 	common_reply_off	Deactivate talkativeness	
 	
-	rss_on		Activate RSS Newsfeed
-	rss_off		Deactivate RSS Newsfeed
+	rss_on			Activate RSS Newsfeed
+	rss_off			Deactivate RSS Newsfeed
 	
-	gpt_on		Activate tgpt
-	gpt_off		Deactivate tgpt
+	gpt_on			Activate tgpt
+	gpt_off			Deactivate tgpt
 
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
