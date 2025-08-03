@@ -190,7 +190,7 @@ Original by Rafaël Warnault <dev@read-write.fr>
 <details>
 <summary>
 <h2>
-GPT (Bard, ChatGPT, EdgeGPT)
+GPT
 </h2>
 </summary>
 	
