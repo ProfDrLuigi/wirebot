@@ -194,11 +194,18 @@ GPT (Bard, ChatGPT, EdgeGPT)
 </h2>
 </summary>
 	
-### If you want to use GPT feature you need this (GPT feature is based on 'tgpt': ###
+### If you want to use GPT feature you need this (GPT feature is based on 'tgpt'): ###
 
 	Install latest "Golang" (go) for your system
+Then
+ 	
+  	git clone https://github.com/ProfDrLuigi/tgpt
+ 	cd tgpt
+  	bash build.sh
+   	
+Copy your desired binary in the build folder to
 
-You can re-use this scripts for update checking and installing.
+	/opt/wirebot/tgpt
 
 ### --- General use --- ##
 To use it in chat simply start every chat line with # e.g.
