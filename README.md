@@ -194,7 +194,7 @@ GPT
 </h2>
 </summary>
 	
-### If you want to use GPT feature you need this (GPT feature is based on 'tgpt'): ###
+### If you want to use GPT feature (including image generation) you need this (GPT feature is based on 'tgpt'): ###
 
 	Install latest "Golang" (go) for your system
 Compile my modified version of the original tgpt version (https://github.com/aandrew-me/tgpt)
