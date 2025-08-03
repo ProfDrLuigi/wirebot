@@ -201,11 +201,14 @@ Then
  	
   	git clone https://github.com/ProfDrLuigi/tgpt
  	cd tgpt
-  	bash build.sh
-   	
+  	bash build.sh  	
 Copy your desired binary in the build folder to
 
 	/opt/wirebot/tgpt
+If you want to start tgpt in background with wirebotctl you must set this:
+
+	gpt_autostart=yes
+in wirebot.sh
 
 ### --- General use --- ##
 To use it in chat simply start every chat line with # e.g.
