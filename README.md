@@ -213,9 +213,13 @@ in wirebot.sh
 ### --- General use --- ##
 To use it in chat simply start every chat line with # e.g.
 
-	#How are you today?
+	# How are you today?
 	
 and wait for the reply. You can speak in every language with him.
+
+If you want to create an Image do this e.g.
+
+	#p Show me a picture of a cat.
 
 If you want to extent the wirebot with functions you can edit wirebot.sh in your .wirebot Directory.
 
