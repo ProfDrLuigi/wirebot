@@ -2,8 +2,6 @@
 
 PIDFILE="$HOME/.wirebot/wirebot.pid"
 PIDFILE_WATCHER="$HOME/.wirebot/watcher.pid"
-PIDFILE_EDGEGPT="$HOME/.wirebot/edgegpt.pid"
-PIDFILE_BARD="$HOME/.wirebot/bard.pid"
 CONFIGFILE="$HOME/.wirebot/config"
 BASHFILE="$HOME/.wirebot/wirebot.sh"
 
@@ -51,15 +49,9 @@ case $CMD in
 		if screen -Sdm wirebot $WIREBOT/wirebot ; then
 			/bin/bash "$HOME/.wirebot/wirebot.sh" watcher_init
 			/bin/bash "$HOME/.wirebot/wirebot.sh" rssfeed_init
-			check_gpt=$( cat wirebot.sh | grep -w "gpt=*" | head -n 1 | sed 's/gpt=//g' )
-			if [ "$check_gpt" = "edgegpt" ]; then
-			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
-			fi
-			if [ "$check_gpt" = "bard" ]; then
-			  /bin/bash "$HOME/.wirebot/wirebot.sh" bard_init
-			fi
-			if [ "$check_gpt" = "chatgpt" ]; then
-			  /bin/bash "$HOME/.wirebot/wirebot.sh" chatgpt_init
+			check_gpt=$( cat wirebot.sh | grep -w "gpt_autostart=*" | head -n 1 | sed 's/gpt_autostart=//g' )
+			if [ "$check_gpt" = "yes" ]; then
+			  /bin/bash "$HOME/.wirebot/wirebot.sh" tgpt_start
 			fi
 		else
 			echo "$PROG: $CMD: wirebot could not be started"
@@ -68,25 +60,12 @@ case $CMD in
 
 	stop)
 		checkrunning
-		pkill -f edgegpt_check.sh
-		pkill -f edgegpt_init
-		pkill -f "wirebot.sh monitor_gpt"
-		pkill -f bard_check.sh
-		pkill -f bard_init
-		pkill -f chatgpt_init
-		pkill -f chatgpt_check.sh
 		if screen -XS wirebot quit; then
 			if [ -f "$HOME/.wirebot/watcher.pid" ];then
 			  rm "$HOME/.wirebot/watcher.pid"
 			fi
 			if [ -f "$HOME/.wirebot/wirebot.pid" ];then
 			  rm "$HOME/.wirebot/wirebot.pid"
-			fi
-			if [ -f "$HOME/.wirebot/gpt.pid" ];then
-			  rm "$HOME/.wirebot/gpt.pid"
-			fi
-			if [ -f "$HOME/.wirebot/gpt.history" ];then
-			  rm "$HOME/.wirebot/gpt.history"
 			fi
 			if [ -f "$HOME/.wirebot/rss.pid" ];then
 			  rm "$HOME/.wirebot/rss.pid"
@@ -97,14 +76,8 @@ case $CMD in
 			if [ -f "$HOME/.wirebot/wirebot.txt" ];then
 			  rm "$HOME/.wirebot/wirebot.txt"
 			fi
+			/bin/bash "$HOME/.wirebot/wirebot.sh" tgpt_stop
 			echo "$PROG: $CMD: wirebot stopped"
-			pkill -f edgegpt_check.sh
-			pkill -f edgegpt_init
-			pkill -f "wirebot.sh monitor_gpt"
-			pkill -f bard_check.sh
-			pkill -f bard_init
-			pkill -f chatgpt_init
-			pkill -f chatgpt_check.sh
 		else
 			echo "$PROG: $CMD: wirebot could not be stopped"
 			exit 1
@@ -159,9 +132,6 @@ case $CMD in
 				if [ -f "$HOME/.wirebot/watcher.pid" ];then
 				  rm "$HOME/.wirebot/watcher.pid"
 				fi
-				if [ -f "$HOME/.wirebot/gpt.pid" ];then
-				  rm "$HOME/.wirebot/gpt.pid"
-				fi
 				if [ -f "$HOME/.wirebot/wirebot.pid" ];then
 				  rm "$HOME/.wirebot/wirebot.pid"
 				fi
@@ -182,15 +152,10 @@ case $CMD in
 		if screen -Sdm wirebot $WIREBOT/wirebot ; then
 			/bin/bash "$HOME/.wirebot/wirebot.sh" watcher_init
 			/bin/bash "$HOME/.wirebot/wirebot.sh" rssfeed_init
-			check_gpt=$( cat wirebot.sh | grep -w "gpt=*" | head -n 1 | sed 's/gpt=//g' )
-			if [ "$check_gpt" = "edgegpt" ]; then
-			  /bin/bash "$HOME/.wirebot/wirebot.sh" edgegpt_init
-			fi
-			if [ "$check_gpt" = "bard" ]; then
-			  /bin/bash "$HOME/.wirebot/wirebot.sh" bard_init
-			fi
-			if [ "$check_gpt" = "chatgpt" ]; then
-			  /bin/bash "$HOME/.wirebot/wirebot.sh" chatgpt_init
+			/bin/bash "$HOME/.wirebot/wirebot.sh" tgpt_stop
+			check_gpt=$( cat wirebot.sh | grep -w "gpt_autostart=*" | head -n 1 | sed 's/gpt_autostart=//g' )
+			if [ "$check_gpt" = yes ]; then
+			  /bin/bash "$HOME/.wirebot/wirebot.sh" tgpt_start
 			fi
 		else
 			echo "$PROG: $CMD: wirebot could not be started"
@@ -248,6 +213,12 @@ case $CMD in
 	rss_off)
 		/bin/bash "$BASHFILE" rssfeed_stop
 		;;
+	gpt_on)
+		/bin/bash "$BASHFILE" tgpt_start
+		;;
+	gpt_off)
+		/bin/bash "$BASHFILE" tgpt_stop
+		;;
 	*)
 		cat <<EOF
 
@@ -276,6 +247,9 @@ Usage:  wirebotctl [COMMAND]
 	
 	rss_on		Activate RSS Newsfeed
 	rss_off		Deactivate RSS Newsfeed
+	
+	gpt_on		Activate tgpt
+	gpt_off		Deactivate tgpt
 
 By Prof. Dr. Luigi 
 Original by Rafaël Warnault <dev@read-write.fr>
