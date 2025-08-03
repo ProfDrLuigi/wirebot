@@ -178,6 +178,9 @@ If you don't need this feature you can disable it by typing
 	rssfeed_on		Activate RSS Newsfeed
 	rssfeed_off		Deactivate RSS Newsfeed
 
+ 	gpt_on			Activate tgpt
+	gpt_off			Deactivate tgpt
+
 By Prof. Dr. Luigi
 
 Original by Rafaël Warnault <dev@read-write.fr>
@@ -193,39 +196,9 @@ GPT (Bard, ChatGPT, EdgeGPT)
 	
 ### If you want to use ChatGPT, EdgeGPT or Bard feature you need this: ###
 
-	sudo apt install python3 python3-pip
-	/bin/bash ~/.wirebot/update_bard.sh
-	/bin/bash ~/.wirebot/update_chatgpt.sh 
-	/bin/bash ~/.wirebot/update_edgegpt.sh
+	Install latest "Golang (go)" for your system
 
 You can re-use this scripts for update checking and installing.
-
-### --- EdgeGPT --- ###
-Follow this instructions to configure generally:
-
-https://github.com/acheong08/EdgeGPT
-
-Cookie file must be named "edgegpt.cookies" and be placed in directory
-
-	~/.wirebot/
-
-### --- ChatGPT --- ###
-To use these Feature a (free) openAI Account is necessary. 
-
-https://openai.com/api/login
-
-Create an API Token or you can put the account credeintials in the config file of "ChatGPT". It´s on you.
-
-https://platform.openai.com/account/api-keys
-
-Further informations to config ChatGPT are here:
-
-https://github.com/acheong08/ChatGPT
-
-### --- Bard --- ##
-Follow this instructions to configure generally:
-
-https://github.com/acheong08/Bard
 
 ### --- General use --- ##
 To use it in chat simply start every chat line with # e.g.
