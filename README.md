@@ -197,6 +197,7 @@ GPT
 ### If you want to use GPT feature (including image generation) you need this (GPT feature is based on 'tgpt'): ###
 
 	Install latest "Golang" (go) for your system
+ 	https://go.dev/dl
 Compile my modified version of the original tgpt version (https://github.com/aandrew-me/tgpt)
  	
   	git clone https://github.com/ProfDrLuigi/tgpt
