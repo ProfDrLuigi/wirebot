@@ -1,6 +1,6 @@
 # wirebot for UNIX
 
-DISONTINUED. Look at new Project:
+DISCONTINUED. Look at new Project:
 
 https://github.com/ProfDrLuigi/wired-cli-bot
 
