@@ -1,5 +1,9 @@
 # wirebot for UNIX
 
+DISONTINUED. Look at new Project:
+
+https://github.com/ProfDrLuigi/wired-cli-bot
+
 wirebot is a command line client for the Wired 2.0 + 2.5 protocol.
 
 This is the former CLI client "wire" (https://github.com/nark/wire) which has now been extended with bot functions by me. It is controlled via bash. See the file "wirebot.sh" (which must be located in the ~/.wirebot folder) for details.
