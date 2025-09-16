@@ -240,6 +240,10 @@ RSS Feed (MacRumors / Tarnkappe)
 
 ### If you don't want to use RSS Feed:
 
+Install xmlstarlet on your System.E.g. Debian/Ubuntu:
+
+	sudo apt install xmlstarlet
+
 If you don't need this feature you can disable it by typing
 
 	/usr/local/bin/wirebot/./wirebotctl rss_off
