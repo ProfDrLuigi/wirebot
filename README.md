@@ -238,11 +238,11 @@ RSS Feed (MacRumors / Tarnkappe)
 </h2>
 </summary>
 
-### If you don't want to use RSS Feed:
-
 Install xmlstarlet on your System.E.g. Debian/Ubuntu:
 
 	sudo apt install xmlstarlet
+
+### If you don't want to use RSS Feed:
 
 If you don't need this feature you can disable it by typing
 
