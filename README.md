@@ -1,13 +1,5 @@
 # wirebot for UNIX
 
-DISCONTINUED. Look at new Project:
-
-https://github.com/ProfDrLuigi/wired-cli-bot
-
-
-
-
-
 wirebot is a command line client for the Wired 2.0 + 2.5 protocol.
 
 This is the former CLI client "wire" (https://github.com/nark/wire) which has now been extended with bot functions by me. It is controlled via bash. See the file "wirebot.sh" (which must be located in the ~/.wirebot folder) for details.
@@ -208,7 +200,7 @@ GPT
  	https://go.dev/dl
 Compile my modified version of the original tgpt version (https://github.com/aandrew-me/tgpt)
  	
-  	git clone https://github.com/ProfDrLuigi/tgpt
+  	git clone --branch wirebot --single-branch https://github.com/ProfDrLuigi/tgpt
  	cd tgpt
   	bash build.sh  	
 Copy your desired binary in the build folder to
